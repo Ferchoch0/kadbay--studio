@@ -1,0 +1,128 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-base: #FAF7F2;
+    --bg-card: #FFFFFF;
+    --bg-nude: #F4ECE4;
+    --gold-primary: #C59A45;
+    --gold-hover: #AF8332;
+    --ink-espresso: #24150E;
+    --ink-muted: #523B2D;
+    
+    /* Sistema de colores dorados para reservas */
+    --accent: #C59A45;
+    --accent-hover: #AF8332;
+    --accent-light: #E8C982;
+    --accent-soft: #FBF6EC;
+    --accent-border: #EAD7BC;
+    --accent-contrast: #FFFFFF;
+    
+    /* Fondos y neutros */
+    --surface-primary: #FFFFFF;
+    --surface-secondary: #FAF7F2;
+    --surface-cream: #F7EDE6;
+    
+    /* Textos */
+    --text-primary: #24150E;
+    --text-secondary: #7C604F;
+    --text-muted: #523B2D;
+    --border-subtle: #E5D9CE;
+  }
+
+
+  body {
+    background-color: var(--bg-base);
+    color: var(--ink-espresso);
+    font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, .font-serif {
+    font-family: var(--font-serif), Georgia, serif;
+  }
+
+  .font-script {
+    font-family: var(--font-script), cursive;
+  }
+
+  .font-mono {
+    font-family: var(--font-mono), monospace;
+  }
+
+  .font-smooth {
+    font-family: var(--font-smooth), sans-serif;
+  }
+}
+
+@layer components {
+  .btn-skew-anim {
+    position: relative;
+    overflow: hidden;
+    background-color: var(--btn-hover-bg, white);
+    color: var(--btn-text, white);
+    border: var(--btn-border, none);
+  }
+
+  .btn-skew-anim > * {
+    position: relative;
+    z-index: 10;
+    transition: color 0.4s;
+  }
+
+  .btn-skew-anim:hover > * {
+    color: var(--btn-hover-text, #77530a);
+  }
+
+  .btn-skew-anim::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -10%;
+    width: 120%;
+    height: 100%;
+    background-color: var(--btn-bg, #77530a);
+    transform: skew(30deg);
+    transition: transform 0.4s cubic-bezier(0.3, 1, 0.8, 1);
+    z-index: 0;
+  }
+
+  .btn-skew-anim:hover::before {
+    transform: translate3d(100%, 0, 0);
+  }
+
+  .btn-skew-transparent {
+    position: relative;
+    overflow: hidden;
+    background-color: transparent;
+    color: var(--btn-text, white);
+    border: var(--btn-border, none);
+  }
+
+  .btn-skew-transparent > * {
+    position: relative;
+    z-index: 10;
+    transition: color 0.4s;
+  }
+
+  .btn-skew-transparent:hover > * {
+    color: var(--btn-hover-text, #77530a);
+  }
+
+  .btn-skew-transparent::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -10%;
+    width: 120%;
+    height: 100%;
+    background-color: var(--btn-hover-bg, white);
+    transform: translate3d(-100%, 0, 0) skew(30deg);
+    transition: transform 0.4s cubic-bezier(0.3, 1, 0.8, 1);
+    z-index: 0;
+  }
+
+  .btn-skew-transparent:hover::before {
+    transform: translate3d(0, 0, 0) skew(30deg);
+  }
+}
