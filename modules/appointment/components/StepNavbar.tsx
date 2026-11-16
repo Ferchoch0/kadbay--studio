@@ -6,12 +6,14 @@ import { BookingStep } from '../types';
 
 interface StepNavbarProps {
   currentStep: BookingStep;
+  totalSteps?: number;
   onStepChange: (step: BookingStep) => void;
   onBack: () => void;
   canNavigateToStep: (step: BookingStep) => boolean;
+  backLabel?: string;
 }
 
-const STEPS = [
+const ALL_STEPS = [
   { step: 1 as BookingStep, title: 'Seleccionar Servicio', shortTitle: 'Servicio', icon: FiScissors },
   { step: 2 as BookingStep, title: 'Elegir empleado', shortTitle: 'Empleado', icon: FiUser },
   { step: 3 as BookingStep, title: 'Fecha y Horario', shortTitle: 'Fecha/Hora', icon: FiCalendar },
@@ -19,10 +21,24 @@ const STEPS = [
 
 export function StepNavbar({
   currentStep,
+  totalSteps = 3,
   onStepChange,
   onBack,
   canNavigateToStep,
+  backLabel,
 }: StepNavbarProps) {
+  const resolvedBackText = backLabel || 'Volver';
+  const steps = totalSteps === 2
+    ? [
+        { step: 1 as BookingStep, title: 'Seleccionar Servicio', shortTitle: 'Servicio', icon: FiScissors },
+        { step: 2 as BookingStep, title: 'Fecha y Horario', shortTitle: 'Fecha/Hora', icon: FiCalendar },
+      ]
+    : ALL_STEPS;
+
+  const progressWidth = totalSteps === 2
+    ? (currentStep === 1 ? '0%' : '70%')
+    : (currentStep === 1 ? '0%' : currentStep === 2 ? '35%' : '70%');
+
   return (
     <header className="sticky top-0 z-30 bg-[#FAF7F2]/95 backdrop-blur-md border-b border-[#EAD7BC]/70 px-4 sm:px-6 lg:px-8 shadow-xs">
       <div className="max-w-7xl mx-auto h-16 sm:h-18 flex items-center justify-between gap-4">
@@ -30,12 +46,12 @@ export function StepNavbar({
         <button
           onClick={onBack}
           type="button"
-          className="inline-flex items-center gap-2 px-3 py-2 -ml-2 rounded-full text-[#24150E]/80 hover:text-[#24150E] hover:bg-[#EAD7BC]/30 active:scale-95 transition-all text-sm font-medium tracking-wide focus:outline-none"
-          title={currentStep > 1 ? 'Paso anterior' : 'Cerrar y volver'}
+          className="inline-flex items-center gap-2 px-3 py-2 -ml-2 rounded-full text-[#24150E]/80 hover:text-[#24150E] hover:bg-[#EAD7BC]/30 active:scale-95 transition-all text-sm font-medium tracking-wide focus:outline-none cursor-pointer"
+          title={resolvedBackText}
         >
           <FiArrowLeft className="w-5 h-5 shrink-0 text-[#24150E]" />
-          <span className="hidden sm:inline font-sans text-xs uppercase tracking-wider font-semibold">
-            {currentStep > 1 ? 'Volver' : 'Cerrar'}
+          <span className="font-sans text-xs uppercase tracking-wider font-semibold">
+            {resolvedBackText}
           </span>
         </button>
 
@@ -50,12 +66,13 @@ export function StepNavbar({
               className="absolute left-[15%] top-1/2 -translate-y-1/2 h-[2px] bg-[#C59A45] z-0 pointer-events-none origin-left"
               initial={false}
               animate={{
-                width: currentStep === 1 ? '0%' : currentStep === 2 ? '35%' : '70%',
+                width: progressWidth,
               }}
               transition={{ duration: 0.35, ease: 'easeInOut' }}
             />
 
-            {STEPS.map((s) => {
+            {steps.map((s, index) => {
+              const displayStepNumber = index + 1;
               const isCurrent = currentStep === s.step;
               const isCompleted = currentStep > s.step;
               const isAccessible = canNavigateToStep(s.step);
@@ -99,7 +116,7 @@ export function StepNavbar({
                             : 'text-[#7C604F]/70'
                         }`}
                       >
-                        {s.step}. {s.title}
+                        {displayStepNumber}. {s.title}
                       </span>
                     </div>
 
@@ -119,9 +136,9 @@ export function StepNavbar({
         </nav>
 
         {/* Indicador de paso actual */}
-        <div className="hidden sm:flex items-center">
+        <div className="hidden sm:flex items-center justify-end w-16">
           <span className="text-[11px] font-mono uppercase tracking-widest text-[#7C604F] bg-[#EAD7BC]/40 px-3 py-1 rounded-full border border-[#EAD7BC]/60">
-            Paso {currentStep} de 3
+            {currentStep}/{totalSteps}
           </span>
         </div>
       </div>

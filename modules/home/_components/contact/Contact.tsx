@@ -2,16 +2,27 @@
 
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { FiInstagram, FiPhone, FiMapPin, FiClock, FiArrowRight } from 'react-icons/fi';
+import { FiInstagram, FiPhone, FiMapPin, FiClock, FiArrowRight, FiMail } from 'react-icons/fi';
+import { FaWhatsapp } from 'react-icons/fa';
 import { BsDiamondFill } from 'react-icons/bs';
 import ContactTitle from '@/assets/images/contact-title.png';
+import { Business, formatInstagramUrl, formatScheduleDays } from '@/services/business.service';
 
-export default function Contact() {
+interface ContactProps {
+  business: Business | null;
+}
+
+export default function Contact({ business }: ContactProps) {
+  const address = business?.address || 'Av. Santa Fe 1845, CABA';
+  const instagramUrl = formatInstagramUrl(business?.instagram);
+  const cleanWa = business?.whatsapp ? business.whatsapp.replace(/[^0-9]/g, '') : '';
+  const mapEmbedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(address)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+
   return (
     <section id="contacto" className="py-24 lg:py-32 bg-[#F4ECE4] w-full overflow-hidden">
       <div className="w-full space-y-14">
 
-        {/* ── Cabecera (mismo esquema que Servicios) ── */}
+        {/* ── Cabecera ── */}
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -57,45 +68,63 @@ export default function Contact() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
-            className="flex flex-col justify-between space-y-10"
+            className="flex flex-col justify-between space-y-8"
           >
 
             {/* Bloque: Ubicación */}
             <div className="space-y-2">
-              <div className="flex items-center gap-3 mb-3">
+              <div className="flex items-center gap-3 mb-2">
                 <FiMapPin className="w-5 h-5 text-[#77530a] shrink-0" />
                 <span className="font-smooth font-bold text-xl tracking-widest text-[#24150E] uppercase">
                   Donde nos encontrás
                 </span>
               </div>
               <p className="font-serif text-lg text-[#523B2D] pl-8 leading-relaxed">
-                Cajaravilla 4324
+                {address}
               </p>
             </div>
 
-            {/* Línea separadora */}
-            <div
-              className="h-[1px] w-full"
-              style={{ background: 'linear-gradient(to right, #77530a33, #ffd27766, transparent)' }}
-            />
-
-            {/* Bloque: Contacto */}
+            {/* Bloque: Contacto directo (Teléfono, WhatsApp & Email) */}
             <div className="space-y-2">
-              <div className="flex items-center gap-3 mb-3">
+              <div className="flex items-center gap-3 mb-2">
                 <FiPhone className="w-5 h-5 text-[#77530a] shrink-0" />
                 <span className="font-smooth font-bold text-xl tracking-widest text-[#24150E] uppercase">
-                  Contacto
+                  Comunicate con nosotros
                 </span>
               </div>
-              <p className="font-serif text-lg text-[#523B2D] pl-8">
-                Teléfono:{' '}
-                <a
-                  href="tel:1134233686"
-                  className="text-[#77530a] hover:text-[#C59A45] transition-colors"
-                >
-                  1134233686
-                </a>
-              </p>
+              <div className="font-serif text-lg text-[#523B2D] pl-8 space-y-2">
+                {business?.phone && (
+                  <p>
+                    <a href={`tel:${business.phone}`} className="hover:text-[#77530a] transition-colors">
+                      Tel: {business.phone}
+                    </a>
+                  </p>
+                )}
+                {cleanWa && (
+                  <p>
+                    <a
+                      href={`https://wa.me/${cleanWa}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 hover:text-[#77530a] transition-colors"
+                    >
+                      <FaWhatsapp className="w-4 h-4 text-[#25D366] shrink-0" />
+                      <span>WhatsApp: {business?.whatsapp}</span>
+                    </a>
+                  </p>
+                )}
+                {business?.email && (
+                  <p className="flex items-center gap-2">
+                    <FiMail className="w-4 h-4 text-[#77530a] shrink-0" />
+                    <a href={`mailto:${business.email}`} className="hover:text-[#77530a] transition-colors">
+                      {business.email}
+                    </a>
+                  </p>
+                )}
+                {!business?.phone && !cleanWa && !business?.email && (
+                  <p className="text-sm opacity-70">Contactanos por nuestras redes sociales.</p>
+                )}
+              </div>
             </div>
 
             {/* Línea separadora */}
@@ -106,15 +135,16 @@ export default function Contact() {
 
             {/* Bloque: Horarios */}
             <div className="space-y-2">
-              <div className="flex items-center gap-3 mb-3">
+              <div className="flex items-center gap-3 mb-2">
                 <FiClock className="w-5 h-5 text-[#77530a] shrink-0" />
                 <span className="font-smooth font-bold text-xl tracking-widest text-[#24150E] uppercase">
                   Horarios
                 </span>
               </div>
-              <div className="font-serif text-base text-[#523B2D] pl-8 space-y-1.5 leading-relaxed">
-                <p><span className="text-[#24150E] font-medium">Lunes</span> / 12 a 19hs</p>
-                <p><span className="text-[#24150E] font-medium">Martes a Sábados</span> / 9 a 19hs</p>
+              <div className="font-serif text-lg text-[#523B2D] pl-8 space-y-1.5 leading-relaxed">
+                <p>
+                  <span className="text-[#24150E] font-medium">{formatScheduleDays(business?.schedule_days)}</span> / {business?.schedule_open?.substring(0,5) || '09:00'} a {business?.schedule_close?.substring(0,5) || '20:00'}hs
+                </p>
                 <p>
                   <span className="text-[#24150E] font-medium">Domingos</span>{' '}
                   <span className="font-script text-xl text-[#77530a]">Cerrado</span>
@@ -130,15 +160,15 @@ export default function Contact() {
 
             {/* Bloque: Redes */}
             <div className="space-y-4">
-              <div className="flex items-center gap-3 mb-3">
+              <div className="flex items-center gap-3 mb-2">
                 <FiInstagram className="w-5 h-5 text-[#77530a] shrink-0" />
                 <span className="font-smooth font-bold text-xl tracking-widest text-[#24150E] uppercase">
                   Seguinos en redes
                 </span>
               </div>
-              <div>
+              <div className="flex gap-4">
                 <a
-                  href="https://instagram.com"
+                  href={instagramUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
@@ -150,6 +180,7 @@ export default function Contact() {
                   className="btn-skew-transparent ml-8 inline-flex items-center gap-2.5 px-7 py-3 font-smooth font-semibold text-lg tracking-wide rounded-full shadow-sm"
                 >
                   <FiArrowRight className="w-5 h-5 shrink-0" />
+                  Instagram
                 </a>
               </div>
             </div>
@@ -165,14 +196,14 @@ export default function Contact() {
             className="w-full h-[420px] lg:h-full min-h-[380px] rounded-sm overflow-hidden shadow-lg border border-[#EAD7BC]/50"
           >
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3283.748!2d-58.4537!3d-34.5874!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzTCsDM1JzE0LjYiUyA1OMKwMjcnMTMuMyJX!5e0!3m2!1ses!2sar!4v1680000000000!5m2!1ses!2sar"
+              src={mapEmbedUrl}
               width="100%"
               height="100%"
               style={{ border: 0, filter: 'sepia(20%) saturate(80%)' }}
               allowFullScreen
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
-              title="Ubicación Kad Bay Studio"
+              title={`Ubicación ${business?.name || 'Kad Bay Studio'}`}
             />
           </motion.div>
 

@@ -15,7 +15,7 @@ export default function Navbar() {
   const [clientName, setClientName] = useState<string | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
-  const isAppointments = pathname ? pathname.includes('/appointments') : false;
+  const isSubpage = Boolean(pathname && (pathname.includes('/appointments') || pathname.includes('/profile') || pathname.includes('/auth')));
 
   useEffect(() => {
     const storedClient = getStoredClient();
@@ -52,8 +52,8 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // En rutas de appointments el logo siempre está en su estado pequeño docked
-  const effectiveProgress = isAppointments ? 1 : scrollProgress;
+  // En rutas secundarias el logo siempre está en su estado pequeño docked
+  const effectiveProgress = isSubpage ? 1 : scrollProgress;
 
   const isScrolled = effectiveProgress > 0.2;
   const isDockedInNav = effectiveProgress >= 0.9;
@@ -61,6 +61,11 @@ export default function Navbar() {
 
   const scrollToSection = (targetId: string, e?: React.MouseEvent) => {
     if (e) e.preventDefault();
+
+    if (pathname && pathname !== '/') {
+      window.location.href = `/#${targetId}`;
+      return;
+    }
 
     const lenis = (
       window as unknown as {

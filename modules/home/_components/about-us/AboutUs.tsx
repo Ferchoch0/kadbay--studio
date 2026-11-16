@@ -5,8 +5,15 @@ import { BsDiamondFill } from 'react-icons/bs';
 import { motion } from 'framer-motion';
 import aboutusTitle from '@/assets/images/aboutus-title.png';
 import aboutusImage from '@/assets/images/aboutus-image.png';
+import { Business } from '@/services/business.service';
 
-export default function AboutUs() {
+interface AboutUsProps {
+  business: Business | null;
+}
+
+export default function AboutUs({ business }: AboutUsProps) {
+  const description = business?.description || 'En Kad Bay Studio creemos que la belleza no es solo un resultado, sino un ritual. Hemos creado un espacio donde el lujo sereno y la atención meticulosa se encuentran para ofrecerte una experiencia verdaderamente transformadora.';
+
   return (
     <section id="nosotros" className="py-24 lg:py-32 px-4 sm:px-6 lg:px-8 bg-[#F4ECE4] w-full overflow-hidden">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-start">
@@ -17,7 +24,7 @@ export default function AboutUs() {
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="flex flex-col space-y-80 lg:pr-8"
+          className="flex flex-col space-y-10 lg:space-y-14 lg:pr-8"
         >
           <div className="flex flex-col space-y-8">
             <Image
@@ -38,13 +45,8 @@ export default function AboutUs() {
             </div>
           </div>
 
-          <div className="space-y-5 text-[#523B2D] font-serif text-lg leading-relaxed text-justify">
-            <p>
-              En Kad Bay Studio creemos que la belleza no es solo un resultado, sino un ritual. Hemos creado un espacio donde el lujo sereno y la atención meticulosa se encuentran para ofrecerte una experiencia verdaderamente transformadora.
-            </p>
-            <p>
-              Cada detalle de nuestro estudio ha sido pensado para tu máximo confort y relajación. Nuestro equipo de profesionales altamente capacitados se dedica a resaltar tu belleza natural con técnicas innovadoras y productos de primera calidad, asegurando que cada visita sea un momento único dedicado exclusivamente a ti.
-            </p>
+          <div className="space-y-5 text-[#523B2D] font-serif text-lg leading-relaxed text-justify whitespace-pre-line">
+            <p>{description}</p>
           </div>
         </motion.div>
 

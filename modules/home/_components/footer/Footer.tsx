@@ -1,18 +1,28 @@
 'use client';
 
-import { FiInstagram, FiMapPin, FiPhone, FiClock } from 'react-icons/fi';
+import { FiInstagram, FiMapPin, FiPhone, FiClock, FiMail } from 'react-icons/fi';
+import { FaWhatsapp } from 'react-icons/fa';
 import { BsDiamondFill } from 'react-icons/bs';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import HeroLogo from '@/assets/images/hero-title.png';
+import { Business, formatInstagramUrl, getFullImageUrl, formatScheduleDays } from '@/services/business.service';
 
-export default function Footer() {
+interface FooterProps {
+  business: Business | null;
+}
+
+export default function Footer({ business }: FooterProps) {
   const navLinks = [
     { label: 'Inicio', href: '#inicio' },
     { label: 'Servicios', href: '#servicios' },
     { label: 'Nosotros', href: '#nosotros' },
     { label: 'Contacto', href: '#contacto' },
   ];
+
+  const instagramUrl = formatInstagramUrl(business?.instagram);
+  const logoUrl = getFullImageUrl(business?.logo_url);
+  const footerText = business?.footer_text || business?.description || 'Un espacio de lujo sereno dedicado a resaltar tu belleza natural con técnicas innovadoras y atención personalizada.';
 
   return (
     <footer className="bg-[#18110B] text-[#FAF7F2] w-full">
@@ -30,22 +40,37 @@ export default function Footer() {
             className="lg:col-span-1 flex flex-col space-y-5"
           >
             <div>
-              <Image
-                src={HeroLogo}
-                alt="Hero Logo"
-                width={200}
-                height={200}
-                className="object-contain"
-              />
-              <div className='w-full flex justify-end pr-[15%]'>
-                <span className="font-script text-3xl text-[#C59A45] tracking-normal">
-                  Studio
+              {logoUrl ? (
+                <div className="relative w-[140px] h-[70px]">
+                  <Image
+                    src={logoUrl}
+                    alt={business?.name || "Logo"}
+                    fill
+                    sizes="140px"
+                    className="object-contain object-left"
+                    unoptimized
+                  />
+                </div>
+              ) : (
+                <Image
+                  src={HeroLogo}
+                  alt="Hero Logo"
+                  width={200}
+                  height={200}
+                  className="object-contain"
+                />
+              )}
+              <div className='w-full flex justify-start pl-1 pt-1'>
+                <span className="font-script text-2xl text-[#C59A45] tracking-normal">
+                  {business?.name || 'Studio'}
                 </span>
               </div>
             </div>
+
             <p className="font-serif text-sm text-[#9C8B7E] leading-relaxed max-w-xs">
-              Un espacio de lujo sereno dedicado a resaltar tu belleza natural con técnicas innovadoras y atención personalizada.
+              {footerText}
             </p>
+
             {/* Separador dorado */}
             <div className="flex items-center gap-3 pt-1">
               <BsDiamondFill className="w-2 h-2 text-[#C59A45]" />
@@ -91,19 +116,17 @@ export default function Footer() {
             <h4 className="font-smooth font-bold text-xs tracking-[0.3em] uppercase text-[#C59A45]">
               Horarios
             </h4>
-            <div className="flex flex-col space-y-2.5 font-serif text-sm text-[#9C8B7E] leading-relaxed">
+            <div className="flex flex-col space-y-3 font-serif text-sm text-[#9C8B7E]">
               <div className="flex items-center gap-2">
                 <FiClock className="w-3.5 h-3.5 text-[#77530a] shrink-0" />
-                <span><span className="text-[#FAF7F2]/80">Lunes</span> / 12 a 19hs</span>
+                <span>
+                  <span className="text-[#FAF7F2]/80">{formatScheduleDays(business?.schedule_days)}</span> / {business?.schedule_open?.substring(0,5) || '09:00'} a {business?.schedule_close?.substring(0,5) || '20:00'}hs
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 <FiClock className="w-3.5 h-3.5 text-[#77530a] shrink-0" />
-                <span><span className="text-[#FAF7F2]/80">Mar – Sáb</span> / 9 a 19hs</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <FiClock className="w-3.5 h-3.5 text-[#77530a] shrink-0" />
-                <span><span className="text-[#FAF7F2]/80">Domingos</span> /{' '}
-                  <span className="font-script text-lg text-[#77530a]">Cerrado</span>
+                <span>
+                  <span className="text-[#FAF7F2]/80">Domingos</span> / <span className="font-script text-lg text-[#77530a]">Cerrado</span>
                 </span>
               </div>
             </div>
@@ -121,13 +144,32 @@ export default function Footer() {
               Contacto
             </h4>
             <div className="flex flex-col space-y-3 font-serif text-sm text-[#9C8B7E]">
-              <a href="tel:1134233686" className="flex items-center gap-2 hover:text-[#FAF7F2] transition-colors duration-200">
-                <FiPhone className="w-3.5 h-3.5 text-[#77530a] shrink-0" />
-                <span>1134233686</span>
-              </a>
+              {business?.phone && (
+                <a href={`tel:${business.phone}`} className="flex items-center gap-2 hover:text-[#FAF7F2] transition-colors duration-200">
+                  <FiPhone className="w-3.5 h-3.5 text-[#77530a] shrink-0" />
+                  <span>{business.phone}</span>
+                </a>
+              )}
+              {business?.whatsapp && (
+                <a
+                  href={`https://wa.me/${business.whatsapp.replace(/[^0-9]/g, '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 hover:text-[#FAF7F2] transition-colors duration-200"
+                >
+                  <FaWhatsapp className="w-3.5 h-3.5 text-[#25D366] shrink-0" />
+                  <span>{business.whatsapp}</span>
+                </a>
+              )}
+              {business?.email && (
+                <a href={`mailto:${business.email}`} className="flex items-center gap-2 hover:text-[#FAF7F2] transition-colors duration-200">
+                  <FiMail className="w-3.5 h-3.5 text-[#77530a] shrink-0" />
+                  <span>{business.email}</span>
+                </a>
+              )}
               <div className="flex items-start gap-2">
                 <FiMapPin className="w-3.5 h-3.5 text-[#77530a] shrink-0 mt-0.5" />
-                <span>Cajaravilla 4324</span>
+                <span>{business?.address || 'Av. Santa Fe 1845, CABA'}</span>
               </div>
             </div>
 
@@ -135,7 +177,7 @@ export default function Footer() {
               Redes
             </h4>
             <a
-              href="https://instagram.com"
+              href={instagramUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-sm font-serif text-[#9C8B7E] hover:text-[#E1306C] transition-colors duration-200 group"
@@ -161,7 +203,7 @@ export default function Footer() {
       {/* ── Copyright ── */}
       <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
         <p className="text-xs font-serif text-[#5C4C42] tracking-wide">
-          © {new Date().getFullYear()} KAD BAY Studio. Todos los derechos reservados.
+          © {new Date().getFullYear()} {business?.name || 'KAD BAY Studio'}. Todos los derechos reservados.
         </p>
         <p className="text-xs font-serif text-[#5C4C42] tracking-wide">
           Diseñado con{' '}

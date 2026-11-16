@@ -1,4 +1,5 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+const BUSINESS_SLUG = process.env.NEXT_PUBLIC_BUSINESS_SLUG || 'kadbay';
 
 export interface ClientSession {
   token: string;
@@ -9,6 +10,7 @@ export interface ClientSession {
     email: string;
     phone: string | null;
     avatar_url: string | null;
+    business_id?: number | null;
   };
 }
 
@@ -33,6 +35,39 @@ function isTokenExpired(token: string): boolean {
   }
 }
 
+export function logoutClient(): void {
+  clearSession();
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('storage'));
+  }
+}
+
+export async function getClientMe(): Promise<ClientSession['client'] | null> {
+  if (typeof window === 'undefined') return null;
+  const token = localStorage.getItem('stetic_access_token');
+  if (!token || isTokenExpired(token)) {
+    clearSession();
+    return null;
+  }
+
+  try {
+    const response = await fetch(`${API_URL}/api/client/me`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const json = (await response.json()) as ApiResponse<ClientSession['client']>;
+    if (response.ok && json.success && json.data) {
+      localStorage.setItem('stetic_client', JSON.stringify(json.data));
+      return json.data;
+    }
+  } catch (err) {
+    console.error('Error fetching fresh client me:', err);
+  }
+
+  return getStoredClient();
+}
+
 export function getStoredClient(): ClientSession['client'] | null {
   if (typeof window === 'undefined') return null;
 
@@ -55,7 +90,10 @@ export async function loginWithGoogle(credential: string): Promise<ClientSession
   const response = await fetch(`${API_URL}/api/auth/google`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ credential }),
+    body: JSON.stringify({
+      credential,
+      business_slug: BUSINESS_SLUG,
+    }),
   });
 
   const json = (await response.json()) as ApiResponse<ClientSession>;

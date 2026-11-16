@@ -2,22 +2,32 @@
 
 import { FiInstagram } from 'react-icons/fi';
 import Image from 'next/image';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import Studio from '@/assets/images/studio.jpg';
+import { Business, formatInstagramUrl } from '@/services/business.service';
 
-export function SeparatorA() {
+interface SeparatorProps {
+  business?: Business | null;
+}
+
+export function SeparatorA({ business }: SeparatorProps) {
+  const instagramUrl = formatInstagramUrl(business?.instagram);
+
   return (
-    <section className="w-full py-16 flex items-center justify-center gap-150 px-20 sm:px-22 md:px-24 lg:px-32 bg-[#cac4b4] overflow-hidden">
+    <section className="w-full py-16 flex items-center justify-center gap-8 sm:gap-16 md:gap-32 lg:gap-48 px-6 sm:px-12 md:px-24 bg-[#cac4b4] overflow-hidden">
       <motion.div
         initial={{ opacity: 0, x: -30 }}
         whileInView={{ opacity: 1, x: 0 }}
         viewport={{ once: true, margin: "-50px" }}
         transition={{ duration: 0.6, ease: "easeOut" }}
       >
-        <h1 className="font-smooth font-bold text-3xl tracking-widest text-white">Siguenos en {' '}
-            <span className="font-script text-4xl sm:text-4xl text-[#77530a] tracking-normal font-normal p-2">
-              Instagram
-            </span>{' '}</h1>
+        <h2 className="font-smooth font-bold text-2xl sm:text-3xl tracking-widest text-white">
+          Siguenos en{' '}
+          <span className="font-script text-3xl sm:text-4xl text-[#77530a] tracking-normal font-normal p-2">
+            Instagram
+          </span>{' '}
+        </h2>
       </motion.div>
 
       <motion.div
@@ -27,11 +37,16 @@ export function SeparatorA() {
         transition={{ duration: 0.6, delay: 0.2, ease: "backOut" }}
         className="flex items-center"
       >
-        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="p-3 bg-white/20 rounded-full hover:bg-white/40 transition-colors backdrop-blur-sm">
+        <a
+          href={instagramUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Perfil de Instagram"
+          className="p-3 bg-white/20 rounded-full hover:bg-white/40 transition-colors backdrop-blur-sm"
+        >
           <FiInstagram className="w-8 h-8 text-[#77530a]" />
         </a>
       </motion.div>
-      
     </section>
   );
 }
@@ -48,29 +63,30 @@ export function SeparatorB() {
         className="w-1/2 flex flex-col px-16 lg:px-24 py-16"
       >
         <div className="my-auto space-y-6 flex flex-col items-center text-center">
-          <h1 className="font-smooth font-bold text-4xl lg:text-5xl tracking-widest text-white leading-tight">
+          <h2 className="font-smooth font-bold text-4xl lg:text-5xl tracking-widest text-white leading-tight">
             Conoce nuestra <br />
             <span className="font-script text-5xl lg:text-7xl text-[#77530a] tracking-normal font-normal block mt-1">
               experiencia
             </span>
-          </h1>
+          </h2>
 
           <p className="font-serif text-lg text-white/95 leading-relaxed max-w-md">
             Disfruta de un ambiente de lujo sereno. Nuestros tratamientos están diseñados para brindarte tranquilidad mientras resaltamos tu belleza única.
           </p>
         </div>
 
-        <button 
+        <Link
+          href="/appointments/new"
           style={{
             '--btn-hover-bg': 'white',
             '--btn-text': 'white',
             '--btn-hover-text': '#77530a',
             '--btn-border': '2px solid white'
           } as React.CSSProperties}
-          className="btn-skew-transparent self-center mt-auto px-12 py-4 font-smooth font-bold text-2xl tracking-wider rounded-full shadow-lg shrink-0"
+          className="btn-skew-transparent self-center mt-auto px-12 py-4 font-smooth font-bold text-2xl tracking-wider rounded-full shadow-lg shrink-0 inline-flex items-center justify-center text-center"
         >
           <span>Hace tu Reserva</span>
-        </button>
+        </Link>
       </motion.div>
 
       {/* Mitad Derecha (Imagen 50% de ancho, 100% de alto) */}

@@ -1,4 +1,7 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+// Slug del negocio — se resuelve a business_id en la API vía la tabla `businesses`
+// Para cambiar de negocio, editar NEXT_PUBLIC_BUSINESS_SLUG en .env
+const BUSINESS_SLUG = process.env.NEXT_PUBLIC_BUSINESS_SLUG || '';
 
 interface ApiResponse<T> { success: boolean; message?: string; data: T; }
 
@@ -22,8 +25,12 @@ function authHeaders(): HeadersInit {
 }
 
 export const appointmentService = {
-  async getEmployees(): Promise<Employee[]> {
-    return (await request<Employee[]>('/api/employees')) ?? [];
+  async getEmployees(serviceId?: string | number): Promise<Employee[]> {
+    const params = new URLSearchParams();
+    if (BUSINESS_SLUG) params.set('business_slug', BUSINESS_SLUG);
+    if (serviceId)     params.set('service_id', encodeURIComponent(String(serviceId)));
+    const qs = params.toString() ? `?${params}` : '';
+    return (await request<Employee[]>(`/api/employees${qs}`)) ?? [];
   },
   async getAvailability(serviceId: string, date: string, employeeId?: number): Promise<AvailabilitySlot[]> {
     const params = new URLSearchParams({ service_id: serviceId, date });
@@ -35,8 +42,11 @@ export const appointmentService = {
       method: 'POST', headers: authHeaders(), body: JSON.stringify(data),
     });
   },
-  async getClientAppointments(): Promise<ClientAppointment[]> {
-    return (await request<ClientAppointment[]>('/api/client/appointments', { headers: authHeaders() })) ?? [];
+  async getClientAppointments(businessSlug = BUSINESS_SLUG): Promise<ClientAppointment[]> {
+    const params = new URLSearchParams();
+    if (businessSlug) params.set('business_slug', businessSlug);
+    const qs = params.toString() ? `?${params}` : '';
+    return (await request<ClientAppointment[]>(`/api/client/appointments${qs}`, { headers: authHeaders() })) ?? [];
   },
   async updateClientAppointmentStatus(id: number, status: 'confirmed' | 'cancelled') {
     return request<ClientAppointment>(`/api/client/appointments/${id}/status`, { method: 'PATCH', headers: authHeaders(), body: JSON.stringify({ status }) });

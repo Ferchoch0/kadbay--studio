@@ -14,7 +14,7 @@ export interface AppointmentSlot {
   employeeId: number;
 }
 
-export function useAppointments() {
+export function useAppointments(serviceId?: string | number | null) {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [employeesLoading, setEmployeesLoading] = useState(true);
   const [employeesError, setEmployeesError] = useState<string | null>(null);
@@ -25,12 +25,13 @@ export function useAppointments() {
 
   useEffect(() => {
     let mounted = true;
-    appointmentService.getEmployees()
+    setEmployeesLoading(true);
+    appointmentService.getEmployees(serviceId ?? undefined)
       .then((data) => { if (mounted) { setEmployees(data); setEmployeesError(null); } })
       .catch((error: unknown) => { if (mounted) setEmployeesError(error instanceof Error ? error.message : 'Error al cargar empleados'); })
       .finally(() => { if (mounted) setEmployeesLoading(false); });
     return () => { mounted = false; };
-  }, []);
+  }, [serviceId]);
 
   const checkAvailability = useCallback(async (serviceId: string, date: string, employeeId: number) => {
     const data: AvailabilitySlot[] = await appointmentService.getAvailability(serviceId, date, employeeId);

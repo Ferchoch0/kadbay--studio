@@ -8,8 +8,13 @@ import { getStoredClient } from '@/modules/auth/auth.service';
 import { useEffect, useState } from 'react';
 import heroBack from '@/assets/images/hero-back.png';
 import heroNails from '@/assets/images/hero-nails.png';
+import { Business } from '@/services/business.service';
 
-export default function Hero() {
+interface HeroProps {
+  business?: Business | null;
+}
+
+export default function Hero({ business }: HeroProps) {
   const { scrollY } = useScroll();
   const [clientName, setClientName] = useState<string | null>(null);
 
@@ -18,6 +23,8 @@ export default function Hero() {
   }, []);
   // Al scrollear se contrae suavemente hacia 0.86
   const nailScale = useTransform(scrollY, [0, 500], [1, 0.66]);
+
+  const heroQuote = business?.footer_text || '“La belleza comienza en el momento en que decides cuidar de ti misma.”';
 
   return (
     <section
@@ -67,7 +74,7 @@ export default function Hero() {
             className="w-[260px] sm:w-[300px] md:w-[340px] flex flex-col items-start justify-center text-left pointer-events-auto space-y-4"
           >
             <h3 className="text-xl sm:text-2xl md:text-3xl font-serif text-[#FAF7F2] font-medium leading-snug drop-shadow-sm">
-              Manicura y diseños personalizados
+              {business?.title || 'Manicura y diseños personalizados'}
             </h3>
             <Link
               href="#servicios"
@@ -91,7 +98,7 @@ export default function Hero() {
             className="w-[260px] sm:w-[300px] md:w-[340px] flex flex-col items-end justify-center text-right pointer-events-auto space-y-3"
           >
             <p className="text-base sm:text-lg md:text-xl font-serif italic text-[#FAF7F2] leading-relaxed drop-shadow-sm">
-              “La belleza comienza en el momento en que decides cuidar de ti misma.”
+              {heroQuote}
             </p>
             <Link href="/auth" className="inline-flex items-center gap-2 rounded-full border border-[#FAF7F2] px-5 py-2.5 text-xs font-semibold uppercase tracking-widest text-[#FAF7F2] transition-colors hover:bg-[#FAF7F2] hover:text-[#24150E]">
               <FiUserPlus className="h-4 w-4" /> {clientName ?? 'Ingresar'}

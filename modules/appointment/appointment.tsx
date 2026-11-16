@@ -20,18 +20,6 @@ interface AppointmentSheetProps {
 export function AppointmentSheet({ isModal = true }: AppointmentSheetProps) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  const { services, loading: servicesLoading, error: servicesError } = useServices();
-  const { employees, hasMultipleEmployees, slots, slotsLoading, loadAvailability, checkAvailability, createAppointment } = useAppointments();
-  const [clientId, setClientId] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (employees.length === 1) {
-      setState((prev) => ({ ...prev, selectedEmployee: employees[0] }));
-    }
-    const client = getStoredClient();
-    if (client) { setClientId(client.id); setState((prev) => ({ ...prev, clientName: client.name, clientPhone: client.phone ?? '' })); }
-  }, [employees]);
-
   const [state, setState] = useState<BookingState>({
     step: 1,
     selectedService: null,
@@ -43,6 +31,17 @@ export function AppointmentSheet({ isModal = true }: AppointmentSheetProps) {
     clientNotes: '',
     isConfirmed: false,
   });
+  const { services, loading: servicesLoading, error: servicesError } = useServices();
+  const { employees, hasMultipleEmployees, slots, slotsLoading, loadAvailability, checkAvailability, createAppointment } = useAppointments(state.selectedService?.id);
+  const [clientId, setClientId] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (employees.length === 1) {
+      setState((prev) => ({ ...prev, selectedEmployee: employees[0] }));
+    }
+    const client = getStoredClient();
+    if (client) { setClientId(client.id); setState((prev) => ({ ...prev, clientName: client.name, clientPhone: client.phone ?? '' })); }
+  }, [employees]);
 
   useEffect(() => {
     if (!state.selectedService || !state.selectedDate || !state.selectedEmployee) return;
@@ -59,40 +58,71 @@ export function AppointmentSheet({ isModal = true }: AppointmentSheetProps) {
     return () => clearTimeout(timer);
   }, []);
 
-  // Interceptar wheel en la fase de captura:
-  // - Si el target está dentro del contenedor scrollable del modal → dejar pasar (scroll interno).
-  // - Si está fuera (en el home de fondo) → cancelar para que el home no se mueva.
-  // Evitamos lenis.stop() porque agrega overflow:clip al <html> y rompe el scroll interno.
+  // Bloqueo de scroll de la página de fondo y soporte para scroll interno en el modal:
+  // - Bloqueamos document.body.style.overflow = 'hidden' para que la página de abajo no haga scroll (igual que en stetic-appointment).
+  // - Pausamos Lenis en el fondo si está disponible (window.lenis?.stop()).
+  // - Gracias al atributo data-lenis-prevent y overscroll-contain en el contenedor del modal,
+  //   el contenido interno del modal scrollea de forma totalmente nativa y suave.
   useEffect(() => {
-    if (!isModal) return;
+    if (!isModal || !isOpen) return;
 
-    const preventBehindScroll = (e: WheelEvent) => {
-      const scrollContainer = document.getElementById('appointment-scroll');
-      if (scrollContainer && scrollContainer.contains(e.target as Node)) return;
-      e.preventDefault();
-    };
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
 
-    window.addEventListener('wheel', preventBehindScroll, { passive: false, capture: true });
+    const lenisInstance = (window as unknown as { lenis?: { stop: () => void; start: () => void } }).lenis;
+    lenisInstance?.stop();
+
     return () => {
-      window.removeEventListener('wheel', preventBehindScroll, { capture: true });
+      document.body.style.overflow = originalOverflow;
+      lenisInstance?.start();
     };
-  }, [isModal]);
+  }, [isModal, isOpen]);
 
   const handleClose = () => {
     setIsOpen(false);
     setTimeout(() => {
-      router.back();
+      if (isModal) {
+        router.back();
+      } else {
+        router.push('/');
+      }
     }, 320);
   };
 
   const handleFinish = () => {
+    setState({
+      step: 1,
+      selectedService: null,
+      selectedEmployee: employees.length === 1 ? employees[0] : null,
+      selectedDate: null,
+      selectedTime: null,
+      clientName: getStoredClient()?.name || '',
+      clientPhone: getStoredClient()?.phone || '',
+      clientNotes: '',
+      isConfirmed: false,
+    });
     setIsOpen(false);
     setTimeout(() => router.push('/appointments'), 320);
   };
 
   const handleStepBack = () => {
+    if (state.isConfirmed) {
+      setState((prev) => ({
+        ...prev,
+        step: 1,
+        selectedService: null,
+        selectedDate: null,
+        selectedTime: null,
+        isConfirmed: false,
+      }));
+      return;
+    }
     if (state.step > 1) {
-      setState((prev) => ({ ...prev, step: (prev.step - 1) as BookingStep }));
+      setState((prev) => ({
+        ...prev,
+        step: (prev.step - 1) as BookingStep,
+        isConfirmed: false,
+      }));
     } else {
       handleClose();
     }
@@ -100,6 +130,8 @@ export function AppointmentSheet({ isModal = true }: AppointmentSheetProps) {
 
   const employeeStep = hasMultipleEmployees;
   const dateStep = employeeStep ? 3 : 2;
+  const totalSteps = employeeStep ? 3 : 2;
+
   const canNavigateToStep = (targetStep: BookingStep): boolean => {
     if (targetStep === 1) return true;
     if (employeeStep && targetStep === 2) return !!state.selectedService;
@@ -107,10 +139,22 @@ export function AppointmentSheet({ isModal = true }: AppointmentSheetProps) {
     return false;
   };
 
+  const goToStep = (step: BookingStep) => {
+    setState((prev) => ({
+      ...prev,
+      step,
+      isConfirmed: false,
+    }));
+  };
+
   const handleSelectService = (service: ServiceItem) => {
     setState((prev) => ({
       ...prev,
       selectedService: service,
+      selectedEmployee: null,
+      selectedDate: null,
+      selectedTime: null,
+      isConfirmed: false,
     }));
   };
 
@@ -152,6 +196,7 @@ export function AppointmentSheet({ isModal = true }: AppointmentSheetProps) {
       animate={{ y: isOpen ? '0%' : '100%' }}
       exit={{ y: '100%' }}
       transition={{ type: 'spring', damping: 28, stiffness: 220 }}
+      data-lenis-prevent
       className={`bg-[#FAF7F2] w-full flex flex-col ${
         isModal
           ? 'fixed top-20 inset-x-0 bottom-0 z-40 border-t border-[#EAD7BC]/60 shadow-[0_-12px_40px_rgba(36,21,14,0.08)]'
@@ -161,13 +206,15 @@ export function AppointmentSheet({ isModal = true }: AppointmentSheetProps) {
       {/* Segundo Navbar: Línea de pasos interactiva justo debajo del Navbar principal */}
       <StepNavbar
         currentStep={state.step}
-        onStepChange={(step) => setState((prev) => ({ ...prev, step }))}
+        totalSteps={totalSteps}
+        onStepChange={goToStep}
         onBack={handleStepBack}
         canNavigateToStep={canNavigateToStep}
+        backLabel={state.isConfirmed ? 'Volver a reservar' : 'Volver'}
       />
 
       {/* Contenido dinámico según el paso actual */}
-      <div id="appointment-scroll" className="flex-1 overflow-y-auto overflow-x-hidden relative">
+      <div id="appointment-scroll" data-lenis-prevent className="flex-1 overflow-y-auto overflow-x-hidden relative overscroll-contain">
         <AnimatePresence mode="wait">
           {state.step === 1 && (
             <motion.div
@@ -184,7 +231,7 @@ export function AppointmentSheet({ isModal = true }: AppointmentSheetProps) {
                 error={servicesError}
                 selectedService={state.selectedService}
                 onSelectService={handleSelectService}
-                onNext={() => setState((prev) => ({ ...prev, step: (employeeStep ? 2 : dateStep) as BookingStep }))}
+                onNext={() => setState((prev) => ({ ...prev, step: (employeeStep ? 2 : dateStep) as BookingStep, isConfirmed: false }))}
               />
             </motion.div>
           )}
@@ -241,6 +288,7 @@ export function AppointmentSheet({ isModal = true }: AppointmentSheetProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={handleClose}
+            data-lenis-prevent
             className="fixed inset-0 bg-black/20 z-30 pointer-events-auto"
           />
           {content}
