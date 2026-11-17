@@ -8,6 +8,7 @@ interface ApiResponse<T> { success: boolean; message?: string; data: T; }
 export interface Employee { id: number | string; name: string; image_url?: string | null; working_days?: number[]; }
 export interface AvailabilitySlot { start: string; end: string; employee_id: number; }
 export interface ClientAppointment { id: number; scheduled_at: string; ends_at: string; status: 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'no_show'; service_name: string; employee_name: string; service_price?: number | string; }
+export interface ClosedDaysResponse { business_id: number; skip_holidays: boolean; schedule_days?: string; business_working_days?: number[]; closed_dates: string[]; }
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${API_URL}${path}`, options);
@@ -50,5 +51,11 @@ export const appointmentService = {
   },
   async updateClientAppointmentStatus(id: number, status: 'confirmed' | 'cancelled') {
     return request<ClientAppointment>(`/api/client/appointments/${id}/status`, { method: 'PATCH', headers: authHeaders(), body: JSON.stringify({ status }) });
+  },
+  async getClosedDays(businessSlug = BUSINESS_SLUG): Promise<ClosedDaysResponse> {
+    const params = new URLSearchParams();
+    if (businessSlug) params.set('business_slug', businessSlug);
+    const qs = params.toString() ? `?${params}` : '';
+    return await request<ClosedDaysResponse>(`/api/closed-days${qs}`);
   },
 };

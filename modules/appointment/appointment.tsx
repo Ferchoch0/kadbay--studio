@@ -33,7 +33,7 @@ export function AppointmentSheet({ isModal = true }: AppointmentSheetProps) {
     isConfirmed: false,
   });
   const { services, loading: servicesLoading, error: servicesError } = useServices();
-  const { employees, hasMultipleEmployees, slots, slotsLoading, checkedDaysStatus, loadAvailability, checkAvailability, createAppointment } = useAppointments(state.selectedService?.id);
+  const { employees, hasMultipleEmployees, slots, slotsLoading, checkedDaysStatus, closedDays, businessWorkingDays, loadAvailability, checkAvailability, createAppointment } = useAppointments(state.selectedService?.id);
   const [clientId, setClientId] = useState<number | null>(null);
 
   useEffect(() => {
@@ -273,6 +273,8 @@ export function AppointmentSheet({ isModal = true }: AppointmentSheetProps) {
                 employeeId={Number(state.selectedEmployee?.id)}
                 employeeName={state.selectedEmployee?.name}
                 workingDays={state.selectedEmployee?.working_days}
+                businessWorkingDays={businessWorkingDays}
+                closedDays={closedDays}
                 slots={slots.map((slot) => slot.time)}
                 loadingSlots={slotsLoading}
                 checkedDaysStatus={checkedDaysStatus}

@@ -26,6 +26,8 @@ interface StepDateTimeProps {
   employeeId: number;
   employeeName?: string;
   workingDays?: number[];
+  businessWorkingDays?: number[];
+  closedDays?: string[];
   slots: string[];
   loadingSlots: boolean;
   checkedDaysStatus?: Record<string, 'available' | 'full'>;
@@ -52,6 +54,8 @@ export function StepDateTime({
   employeeId,
   employeeName,
   workingDays,
+  businessWorkingDays,
+  closedDays,
   slots,
   loadingSlots,
   checkedDaysStatus,
@@ -84,12 +88,23 @@ export function StepDateTime({
       const jsDay = date.getDay(); // 0 (Dom) a 6 (Sáb)
       const isoDay = jsDay === 0 ? 7 : jsDay; // 1 (Lun) a 7 (Dom)
 
+      // Si el negocio no abre este día de la semana según su horario comercial, no se muestra
+      if (businessWorkingDays && businessWorkingDays.length > 0 && !businessWorkingDays.includes(isoDay)) {
+        continue;
+      }
+
       // Si el profesional no trabaja este día de la semana, no se muestra
       if (!activeWorkingDays.includes(isoDay)) {
         continue;
       }
 
       const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+
+      // Si el negocio cerró este día (o feriado con no laborables activado), no se muestra en el selector
+      if (closedDays && closedDays.includes(dateString)) {
+        continue;
+      }
+
       days.push({
         date,
         dateString,

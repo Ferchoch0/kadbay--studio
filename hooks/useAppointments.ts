@@ -23,6 +23,8 @@ export function useAppointments(serviceId?: string | number | null) {
   const [slotsError, setSlotsError] = useState<string | null>(null);
   const [bookingLoading, setBookingLoading] = useState(false);
   const [checkedDaysStatus, setCheckedDaysStatus] = useState<Record<string, 'available' | 'full'>>({});
+  const [closedDays, setClosedDays] = useState<string[]>([]);
+  const [businessWorkingDays, setBusinessWorkingDays] = useState<number[]>([1, 2, 3, 4, 5, 6]);
   const cacheRef = useRef<Record<string, AppointmentSlot[]>>({});
 
   useEffect(() => {
@@ -36,6 +38,16 @@ export function useAppointments(serviceId?: string | number | null) {
       .then((data) => { if (mounted) { setEmployees(data); setEmployeesError(null); } })
       .catch((error: unknown) => { if (mounted) setEmployeesError(error instanceof Error ? error.message : 'Error al cargar empleados'); })
       .finally(() => { if (mounted) setEmployeesLoading(false); });
+
+    appointmentService.getClosedDays()
+      .then((res) => {
+        if (mounted && res?.closed_dates) setClosedDays(res.closed_dates);
+        if (mounted && res?.business_working_days && res.business_working_days.length > 0) {
+          setBusinessWorkingDays(res.business_working_days);
+        }
+      })
+      .catch(() => {});
+
     return () => { mounted = false; };
   }, [serviceId]);
 
@@ -97,6 +109,8 @@ export function useAppointments(serviceId?: string | number | null) {
     slotsLoading,
     slotsError,
     checkedDaysStatus,
+    closedDays,
+    businessWorkingDays,
     loadAvailability,
     checkAvailability,
     createAppointment,
