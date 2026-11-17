@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { ServiceItem } from '@/data/services.mock';
 import { BookingStep, BookingState } from './types';
 import { StepNavbar } from './components/StepNavbar';
@@ -19,6 +19,7 @@ interface AppointmentSheetProps {
 
 export function AppointmentSheet({ isModal = true }: AppointmentSheetProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [state, setState] = useState<BookingState>({
     step: 1,
@@ -32,7 +33,7 @@ export function AppointmentSheet({ isModal = true }: AppointmentSheetProps) {
     isConfirmed: false,
   });
   const { services, loading: servicesLoading, error: servicesError } = useServices();
-  const { employees, hasMultipleEmployees, slots, slotsLoading, loadAvailability, checkAvailability, createAppointment } = useAppointments(state.selectedService?.id);
+  const { employees, hasMultipleEmployees, slots, slotsLoading, checkedDaysStatus, loadAvailability, checkAvailability, createAppointment } = useAppointments(state.selectedService?.id);
   const [clientId, setClientId] = useState<number | null>(null);
 
   useEffect(() => {
@@ -53,10 +54,27 @@ export function AppointmentSheet({ isModal = true }: AppointmentSheetProps) {
   }, [state.selectedService, state.selectedDate, state.selectedEmployee, loadAvailability]);
 
   useEffect(() => {
-    // Activar animación al montar
-    const timer = setTimeout(() => setIsOpen(true), 0);
-    return () => clearTimeout(timer);
-  }, []);
+    if (isModal) {
+      if (pathname === '/appointments/new') {
+        setIsOpen(true);
+      } else {
+        setIsOpen(false);
+      }
+    } else {
+      setIsOpen(true);
+    }
+  }, [isModal, pathname]);
+
+  useEffect(() => {
+    if (!isModal) return;
+
+    const handleCloseModalEvent = () => {
+      setIsOpen(false);
+    };
+
+    window.addEventListener('close-appointment-modal', handleCloseModalEvent);
+    return () => window.removeEventListener('close-appointment-modal', handleCloseModalEvent);
+  }, [isModal]);
 
   // Bloqueo de scroll de la página de fondo y soporte para scroll interno en el modal:
   // - Bloqueamos document.body.style.overflow = 'hidden' para que la página de abajo no haga scroll (igual que en stetic-appointment).
@@ -159,10 +177,10 @@ export function AppointmentSheet({ isModal = true }: AppointmentSheetProps) {
   };
 
   const handleSelectDate = (date: string) => {
-    setState((prev) => ({
-      ...prev,
-      selectedDate: date,
-    }));
+    setState((prev) => ({ ...prev, selectedDate: date, selectedTime: null }));
+    if (state.selectedService && state.selectedEmployee) {
+      loadAvailability(state.selectedService.id, date, Number(state.selectedEmployee.id));
+    }
   };
 
   const handleSelectTime = (time: string) => {
@@ -197,6 +215,7 @@ export function AppointmentSheet({ isModal = true }: AppointmentSheetProps) {
       exit={{ y: '100%' }}
       transition={{ type: 'spring', damping: 28, stiffness: 220 }}
       data-lenis-prevent
+      data-appointment-modal={isModal ? 'true' : undefined}
       className={`bg-[#FAF7F2] w-full flex flex-col ${
         isModal
           ? 'fixed top-20 inset-x-0 bottom-0 z-40 border-t border-[#EAD7BC]/60 shadow-[0_-12px_40px_rgba(36,21,14,0.08)]'
@@ -252,15 +271,17 @@ export function AppointmentSheet({ isModal = true }: AppointmentSheetProps) {
               <StepDateTime
                 selectedService={state.selectedService}
                 employeeId={Number(state.selectedEmployee?.id)}
+                employeeName={state.selectedEmployee?.name}
+                workingDays={state.selectedEmployee?.working_days}
                 slots={slots.map((slot) => slot.time)}
                 loadingSlots={slotsLoading}
+                checkedDaysStatus={checkedDaysStatus}
                 selectedDate={state.selectedDate}
                 selectedTime={state.selectedTime}
                 clientName={state.clientName}
                 clientPhone={state.clientPhone}
                 clientNotes={state.clientNotes}
-                getAvailabilityForDate={async (date) => (await checkAvailability(state.selectedService!.id, date, Number(state.selectedEmployee!.id))).map((slot) => slot.time)}
-                onSelectDate={(date) => { handleSelectDate(date); if (state.selectedService && state.selectedEmployee) loadAvailability(state.selectedService.id, date, Number(state.selectedEmployee.id)); }}
+                onSelectDate={handleSelectDate}
                 onSelectTime={handleSelectTime}
                 onUpdateClientInfo={handleUpdateClientInfo}
                 onConfirmBooking={handleConfirmBooking}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/modules/home/_components/navbar/Navbar';
 import { ClientAppointment, appointmentService } from '@/services/appointment.service';
@@ -46,62 +46,63 @@ function AppointmentModal({
   const isPending = String(appointment.status).toLowerCase() === 'pending';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-3 sm:p-4" onClick={onClose}>
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
         transition={{ duration: 0.2 }}
         data-lenis-prevent
-        className="max-h-[90vh] w-full max-w-lg overflow-y-auto overscroll-contain rounded-3xl bg-[#FAF7F2] p-6 shadow-2xl"
+        className="max-h-[90vh] w-full max-w-lg overflow-y-auto overscroll-contain rounded-2xl sm:rounded-3xl bg-[#FAF7F2] p-4 sm:p-6 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
-          <h2 className="font-serif text-3xl text-[#24150E]">Reserva</h2>
+          <h2 className="font-serif text-2xl sm:text-3xl text-[#24150E]">Reserva</h2>
           <button type="button" onClick={onClose} className="cursor-pointer rounded-full p-2 text-[#24150E] transition-colors hover:bg-[#EAD7BC]/50" aria-label="Cerrar reserva">
             <FiX />
           </button>
         </div>
 
-        <div className="mt-6 space-y-2 text-sm text-[#7C604F]">
+        <div className="mt-5 sm:mt-6 space-y-2 text-xs sm:text-sm text-[#7C604F]">
           <p>{date.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
           <p>Estado: <strong>{getAppointmentStatusLabel(appointment.status)}</strong></p>
           <p>Profesional: <strong>{appointment.employee_name}</strong></p>
           <p>Horario: <strong>{date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })} - {new Date(appointment.ends_at).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</strong></p>
         </div>
 
-        <section className="mt-6 border-t border-[#EAD7BC] pt-5">
+        <section className="mt-5 sm:mt-6 border-t border-[#EAD7BC] pt-4 sm:pt-5">
           <div className="flex justify-between">
-            <h3 className="font-serif text-xl">Resumen</h3>
-            <span>{date.toLocaleDateString('es-ES')}</span>
+            <h3 className="font-serif text-lg sm:text-xl">Resumen</h3>
+            <span className="text-sm">{date.toLocaleDateString('es-ES')}</span>
           </div>
-          <p className="mt-3 font-semibold">{appointment.service_name}</p>
-          <p>Profesional: {appointment.employee_name}</p>
-          <div className="mt-4 flex justify-between font-semibold">
+          <p className="mt-2.5 font-semibold text-sm sm:text-base">{appointment.service_name}</p>
+          <p className="text-xs sm:text-sm text-[#7C604F]">Profesional: {appointment.employee_name}</p>
+          <div className="mt-3.5 flex justify-between font-semibold text-sm sm:text-base">
             <span>Total</span>
             <span>{appointment.service_price !== undefined && appointment.service_price !== null ? `$${appointment.service_price}` : 'A confirmar'}</span>
           </div>
         </section>
 
-        <div className="mt-5 flex gap-3 rounded-xl bg-[#EAD7BC]/40 p-3 text-sm">
-          <FiAlertTriangle className="shrink-0" />El precio puede variar según el servicio realizado.
+        <div className="mt-4 sm:mt-5 flex gap-2.5 rounded-xl bg-[#EAD7BC]/40 p-3 text-xs sm:text-sm text-[#7C604F]">
+          <FiAlertTriangle className="shrink-0 mt-0.5" />
+          <span>El precio puede variar según el servicio realizado.</span>
         </div>
 
-        <div className="mt-5 grid grid-cols-2 gap-3">
-          <button type="button" disabled className="flex cursor-not-allowed items-center gap-2 rounded-xl border border-[#EAD7BC] p-3 text-left text-sm opacity-60">
+        <div className="mt-4 sm:mt-5 grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
+          <button type="button" disabled className="flex cursor-not-allowed items-center gap-2 rounded-xl border border-[#EAD7BC] p-3 text-left text-xs sm:text-sm opacity-60">
             <FiCalendar />Agregar al calendario
           </button>
-          <button type="button" className="cursor-pointer flex items-center gap-2 rounded-xl border border-[#EAD7BC] p-3 text-left text-sm transition-colors hover:bg-[#EAD7BC]/40">
+          <button type="button" className="cursor-pointer flex items-center gap-2 rounded-xl border border-[#EAD7BC] p-3 text-left text-xs sm:text-sm transition-colors hover:bg-[#EAD7BC]/40">
             <FiMapPin />Ver mapa
           </button>
         </div>
 
         {showActions && (
-          <div className="mt-6 flex gap-3">
+          <div className="mt-5 sm:mt-6 flex flex-col sm:flex-row gap-2.5 sm:gap-3">
             <button
               type="button"
               onClick={() => onUpdate('cancelled')}
-              className="btn-skew-transparent cursor-pointer flex-1 rounded-full border border-red-300 py-3 text-red-700 hover:bg-red-50 transition-colors"
+              className="btn-skew-transparent cursor-pointer flex-1 rounded-full border border-red-300 py-2.5 sm:py-3 text-sm text-red-700 hover:bg-red-50 transition-colors text-center inline-flex items-center justify-center"
               style={{ '--btn-hover-bg': '#FEE2E2', '--btn-hover-text': '#B91C1C' } as React.CSSProperties}
             >
               <span>Cancelar cita</span>
@@ -110,7 +111,7 @@ function AppointmentModal({
               <button
                 type="button"
                 onClick={() => onUpdate('confirmed')}
-                className="btn-skew-anim cursor-pointer flex-1 rounded-full"
+                className="btn-skew-anim cursor-pointer flex-1 rounded-full py-2.5 sm:py-3 text-sm text-center inline-flex items-center justify-center"
                 style={{ '--btn-bg': '#24150E', '--btn-hover-bg': '#C59A45', '--btn-text': '#FAF7F2', '--btn-hover-text': '#FAF7F2' } as React.CSSProperties}
               >
                 <span>Confirmar cita</span>
@@ -125,6 +126,7 @@ function AppointmentModal({
 
 export default function AppointmentsPage({ isModal = false }: { isModal?: boolean }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [appointments, setAppointments] = useState<ClientAppointment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -132,9 +134,27 @@ export default function AppointmentsPage({ isModal = false }: { isModal?: boolea
   const [tab, setTab] = useState<'upcoming' | 'history'>('upcoming');
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsOpen(true), 0);
-    return () => clearTimeout(timer);
-  }, []);
+    if (isModal) {
+      if (pathname === '/appointments') {
+        setIsOpen(true);
+      } else {
+        setIsOpen(false);
+      }
+    } else {
+      setIsOpen(true);
+    }
+  }, [isModal, pathname]);
+
+  useEffect(() => {
+    if (!isModal) return;
+
+    const handleCloseModalEvent = () => {
+      setIsOpen(false);
+    };
+
+    window.addEventListener('close-appointment-modal', handleCloseModalEvent);
+    return () => window.removeEventListener('close-appointment-modal', handleCloseModalEvent);
+  }, [isModal]);
 
   useEffect(() => {
     setLoading(true);
@@ -146,7 +166,7 @@ export default function AppointmentsPage({ isModal = false }: { isModal?: boolea
   }, []);
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isModal || !isOpen) return;
 
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -158,7 +178,7 @@ export default function AppointmentsPage({ isModal = false }: { isModal?: boolea
       document.body.style.overflow = originalOverflow;
       lenisInstance?.start();
     };
-  }, [isOpen]);
+  }, [isModal, isOpen]);
 
   const handleClose = () => {
     setIsOpen(false);
@@ -193,6 +213,7 @@ export default function AppointmentsPage({ isModal = false }: { isModal?: boolea
       exit={{ y: '100%' }}
       transition={{ type: 'spring', damping: 28, stiffness: 220 }}
       data-lenis-prevent
+      data-appointment-modal={isModal ? 'true' : undefined}
       className={`bg-[#FAF7F2] w-full flex flex-col ${
         isModal
           ? 'fixed top-20 inset-x-0 bottom-0 z-40 border-t border-[#EAD7BC]/60 shadow-[0_-12px_40px_rgba(36,21,14,0.08)]'

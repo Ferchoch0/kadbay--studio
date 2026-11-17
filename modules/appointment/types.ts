@@ -7,7 +7,7 @@ export type ServiceCategoryKey = 'all' | 'nails' | 'eyes' | 'spa';
 export interface BookingState {
   step: BookingStep;
   selectedService: ServiceItem | null;
-  selectedEmployee: { id: number | string; name: string } | null;
+  selectedEmployee: { id: number | string; name: string; working_days?: number[] } | null;
   selectedDate: string | null; // ISO string YYYY-MM-DD
   selectedTime: string | null; // e.g. "10:30"
   clientName: string;

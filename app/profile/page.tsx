@@ -38,8 +38,10 @@ export default function ProfilePage() {
   useEffect(() => {
     const updateWidth = () => {
       const w = window.innerWidth;
-      if (w < 400) {
-        setCardWidth(w - 32);
+      if (w < 360) {
+        setCardWidth(Math.max(260, w - 32));
+      } else if (w < 480) {
+        setCardWidth(Math.min(360, w - 36));
       } else if (w < 640) {
         setCardWidth(Math.min(420, w - 48));
       } else {
@@ -118,9 +120,6 @@ export default function ProfilePage() {
     // Si completó 10 o más, muestra cuántos lleva del ciclo actual o al menos 1 por cada turno completado
     return count === 0 ? 0 : count % 10 === 0 ? 10 : count % 10;
   }, [completedAppointments]);
-
-  // Nivel de fidelidad
-  const loyaltyBadge = completedAppointments.length >= 5 ? 'Cliente VIP' : 'Miembro Club';
 
   // Tema Kadbay personalizado para la tarjeta
   const kadbayTheme = useMemo(
@@ -218,7 +217,6 @@ export default function ProfilePage() {
               cardTitle="Tarjeta de fidelidad"
               instagram={business?.instagram || '@kadbaystudio'}
               whatsapp={business?.whatsapp || '11 3423 3686'}
-              badge={loyaltyBadge}
               stampsTotal={10}
               stampsCollected={stampsCollected}
               discounts={['10%', '15%']}
@@ -314,7 +312,7 @@ export default function ProfilePage() {
             </div>
           </motion.div>
 
-          {/* Card 3: Categoría y Beneficios */}
+          {/* Card 3: Beneficios del Club */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -323,20 +321,16 @@ export default function ProfilePage() {
           >
             <div className="flex items-center justify-between">
               <span className="font-smooth font-bold text-xs tracking-widest uppercase text-[#77530a]">
-                Categoría Actual
+                Beneficios de Fidelidad
               </span>
               <FiGift className="w-5 h-5 text-[#C59A45]" />
             </div>
 
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EAD7BC]/40 text-[#77530a] text-xs font-bold uppercase tracking-wider">
-                <BsDiamondFill className="w-2 h-2 text-[#77530a]" />
-                {loyaltyBadge}
-              </div>
-              <p className="font-serif text-sm text-[#24150E] mt-3 font-medium">
-                Beneficios de Fidelidad:
+              <p className="font-serif text-sm text-[#24150E] font-medium">
+                Descuentos por tus visitas:
               </p>
-              <ul className="text-xs font-serif text-[#523B2D] space-y-1 mt-1">
+              <ul className="text-xs font-serif text-[#523B2D] space-y-1.5 mt-2">
                 <li>• 10% de descuento en el 5° turno</li>
                 <li>• 15% de descuento en el 10° turno</li>
                 <li>• Atención preferencial en agenda</li>
@@ -364,27 +358,27 @@ export default function ProfilePage() {
             </h3>
 
             <div className="space-y-4 font-serif text-sm text-[#523B2D]">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-4">
                 <span className="text-[#9C8B7E]">Nombre:</span>
-                <span className="font-medium text-[#24150E]">{client?.name}</span>
+                <span className="font-medium text-[#24150E] break-words">{client?.name}</span>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-4">
                 <span className="text-[#9C8B7E]">Email:</span>
-                <span className="font-medium text-[#24150E] flex items-center gap-1.5">
-                  <FiMail className="w-3.5 h-3.5 text-[#77530a]" />
+                <span className="font-medium text-[#24150E] flex items-center gap-1.5 break-all">
+                  <FiMail className="w-3.5 h-3.5 text-[#77530a] shrink-0" />
                   {client?.email}
                 </span>
               </div>
               {client?.phone && (
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-4">
                   <span className="text-[#9C8B7E]">Teléfono:</span>
-                  <span className="font-medium text-[#24150E] flex items-center gap-1.5">
-                    <FiPhone className="w-3.5 h-3.5 text-[#77530a]" />
+                  <span className="font-medium text-[#24150E] flex items-center gap-1.5 break-all">
+                    <FiPhone className="w-3.5 h-3.5 text-[#77530a] shrink-0" />
                     {client.phone}
                   </span>
                 </div>
               )}
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-4">
                 <span className="text-[#9C8B7E]">Estudio:</span>
                 <span className="font-medium text-[#24150E]">
                   {business?.name || 'Kad Bay Studio'}

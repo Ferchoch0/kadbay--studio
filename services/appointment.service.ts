@@ -5,7 +5,7 @@ const BUSINESS_SLUG = process.env.NEXT_PUBLIC_BUSINESS_SLUG || '';
 
 interface ApiResponse<T> { success: boolean; message?: string; data: T; }
 
-export interface Employee { id: number | string; name: string; image_url?: string | null; }
+export interface Employee { id: number | string; name: string; image_url?: string | null; working_days?: number[]; }
 export interface AvailabilitySlot { start: string; end: string; employee_id: number; }
 export interface ClientAppointment { id: number; scheduled_at: string; ends_at: string; status: 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'no_show'; service_name: string; employee_name: string; service_price?: number | string; }
 

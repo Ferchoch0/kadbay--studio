@@ -21,15 +21,18 @@ export default function Hero({ business }: HeroProps) {
   useEffect(() => {
     setClientName(getStoredClient()?.name ?? null);
   }, []);
-  // Al scrollear se contrae suavemente hacia 0.86
+
+  // Al scrollear la mano se contrae suavemente anclada al piso
   const nailScale = useTransform(scrollY, [0, 500], [1, 0.66]);
+  // En mobile el subtítulo se desvanece de inmediato con el scroll
+  const mobileTextOpacity = useTransform(scrollY, [0, 120], [1, 0]);
 
   const heroQuote = business?.footer_text || '“La belleza comienza en el momento en que decides cuidar de ti misma.”';
 
   return (
     <section
       id="inicio"
-      className="relative bg-[#cbc5b9] w-full h-[95vh] flex items-center justify-center overflow-hidden"
+      className="relative bg-[#cbc5b9] w-full h-[54vh] sm:h-[64vh] min-[990px]:h-[95vh] min-h-[380px] min-[990px]:min-h-[600px] flex items-center justify-center overflow-hidden"
     >
       {/* Imagen de fondo con zoom sutil */}
       <motion.div
@@ -47,33 +50,47 @@ export default function Hero({ business }: HeroProps) {
         />
       </motion.div>
 
-      {/* Imagen Nail emergiendo desde abajo y achicándose al scrollear */}
+      {/* Imagen Nail emergiendo desde abajo y PEGADA AL PISO siempre en mobile y desktop */}
       <motion.div
         initial={{ opacity: 0, y: 140 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
         style={{ scale: nailScale }}
-        className="absolute inset-0 flex justify-center items-end pointer-events-none z-30 origin-bottom"
+        className="absolute bottom-0 left-0 right-0 flex justify-center items-end pointer-events-none z-20 origin-bottom"
       >
         <Image
           src={heroNails}
           alt="Hero Nails"
           priority
-          className="w-[87%] h-[87%] max-w-3xl max-h-[88vh] object-contain select-none"
+          className="w-auto h-[42vh] sm:h-[50vh] min-[990px]:h-[88vh] max-h-[88vh] max-w-full object-contain object-bottom select-none block"
         />
       </motion.div>
 
-      {/* Contenido lateral entrando desde los lados una vez llega la mano */}
-      <div className="absolute inset-0 z-35 flex items-center pointer-events-none">
+      {/* Subtítulo editorial encima del logo exclusivo para mobile y tablets (< 990px) */}
+      <motion.div
+        style={{ opacity: mobileTextOpacity }}
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.85 }}
+        className="absolute top-[9.5vh] sm:top-[11vh] inset-x-0 z-25 flex min-[990px]:hidden flex-col items-center justify-center text-center px-4 pointer-events-none space-y-1"
+      >
+        <span className="font-smooth tracking-[0.26em] uppercase text-[10px] sm:text-xs text-[#FAF7F2] font-semibold">
+          {business?.title || 'Estudio de Manicura & Diseño'}
+        </span>
+        <div className="h-[1px] w-14 bg-gradient-to-r from-transparent via-[#ffd277]/90 to-transparent" />
+      </motion.div>
+
+      {/* Contenido lateral completo en desktop (>= 990px): Título, frase y botones devueltos tal como estaban */}
+      <div className="absolute inset-0 z-30 hidden min-[990px]:flex items-center pointer-events-none">
         <div className="max-w-7xl mx-auto w-full px-6 sm:px-10 lg:px-16 flex justify-between items-center">
           {/* Bloque Izquierdo: entra desde la izquierda */}
           <motion.div
             initial={{ opacity: 0, x: -70 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.85, delay: 1.05, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[260px] sm:w-[300px] md:w-[340px] flex flex-col items-start justify-center text-left pointer-events-auto space-y-4"
+            className="w-[260px] sm:w-[300px] min-[990px]:w-[340px] flex flex-col items-start justify-center text-left pointer-events-auto space-y-4"
           >
-            <h3 className="text-xl sm:text-2xl md:text-3xl font-serif text-[#FAF7F2] font-medium leading-snug drop-shadow-sm">
+            <h3 className="text-xl sm:text-2xl min-[990px]:text-3xl font-serif text-[#FAF7F2] font-medium leading-snug drop-shadow-sm">
               {business?.title || 'Manicura y diseños personalizados'}
             </h3>
             <Link
@@ -95,12 +112,15 @@ export default function Hero({ business }: HeroProps) {
             initial={{ opacity: 0, x: 70 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.85, delay: 1.05, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[260px] sm:w-[300px] md:w-[340px] flex flex-col items-end justify-center text-right pointer-events-auto space-y-3"
+            className="w-[260px] sm:w-[300px] min-[990px]:w-[340px] flex flex-col items-end justify-center text-right pointer-events-auto space-y-3"
           >
-            <p className="text-base sm:text-lg md:text-xl font-serif italic text-[#FAF7F2] leading-relaxed drop-shadow-sm">
+            <p className="text-base sm:text-lg min-[990px]:text-xl font-serif italic text-[#FAF7F2] leading-relaxed drop-shadow-sm">
               {heroQuote}
             </p>
-            <Link href="/auth" className="inline-flex items-center gap-2 rounded-full border border-[#FAF7F2] px-5 py-2.5 text-xs font-semibold uppercase tracking-widest text-[#FAF7F2] transition-colors hover:bg-[#FAF7F2] hover:text-[#24150E]">
+            <Link
+              href="/auth"
+              className="inline-flex items-center gap-2 rounded-full border border-[#FAF7F2] px-5 py-2.5 text-xs font-semibold uppercase tracking-widest text-[#FAF7F2] transition-colors hover:bg-[#FAF7F2] hover:text-[#24150E]"
+            >
               <FiUserPlus className="h-4 w-4" /> {clientName ?? 'Ingresar'}
             </Link>
           </motion.div>

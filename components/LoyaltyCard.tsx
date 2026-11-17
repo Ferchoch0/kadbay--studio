@@ -256,7 +256,7 @@ interface FrontProps {
   cardTitle: string;
   instagram?: string;
   whatsapp?: string;
-  badge: string;
+  badge?: string;
 }
 
 const Front: React.FC<FrontProps> = ({
@@ -384,15 +384,17 @@ const Front: React.FC<FrontProps> = ({
         </div>
       )}
 
-      {/* Círculos + Cliente VIP (abajo a la derecha) */}
+      {/* Círculos decorativos (+ badge opcional) (abajo a la derecha) */}
       <div style={{ position: "absolute", right: "4%", bottom: "6%", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.4em" }}>
         <span style={{ position: "relative", width: "2.2em", height: "1.4em" }}>
           <span style={{ position: "absolute", left: 0, top: 0, width: "1.4em", height: "1.4em", borderRadius: "50%", background: "var(--lc-accent-soft)" }} />
           <span style={{ position: "absolute", right: 0, top: 0, width: "1.4em", height: "1.4em", borderRadius: "50%", background: "var(--lc-accent)" }} />
         </span>
-        <span style={{ fontSize: "0.55em", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
-          {badge}
-        </span>
+        {badge ? (
+          <span style={{ fontSize: "0.55em", fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+            {badge}
+          </span>
+        ) : null}
       </div>
     </>
   );
@@ -541,7 +543,7 @@ const LoyaltyCard: React.FC<LoyaltyCardProps> = ({
   cardTitle = "Tarjeta de fidelidad",
   instagram,
   whatsapp,
-  badge = "Cliente VIP",
+  badge = "",
   nameLabel = "Nombre:",
   stampsTotal = 10,
   stampsCollected = 0,

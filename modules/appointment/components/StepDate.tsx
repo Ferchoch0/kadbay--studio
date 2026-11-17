@@ -266,9 +266,9 @@ export function StepDate({
             <button
               onClick={onNext}
               type="button"
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#24150E] text-[#FAF7F2] hover:bg-[#C59A45] active:scale-95 transition-all text-xs uppercase tracking-widest font-semibold shadow-md"
+              className="inline-flex items-center gap-2 px-3 min-[361px]:px-6 py-2.5 rounded-full bg-[#24150E] text-[#FAF7F2] hover:bg-[#C59A45] active:scale-95 transition-all text-xs uppercase tracking-widest font-semibold shadow-md"
             >
-              <span>Continuar a Horario</span>
+              <span className="max-[360px]:hidden">Continuar a Horario</span>
               <FiArrowRight className="w-4 h-4" />
             </button>
           </div>

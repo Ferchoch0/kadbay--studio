@@ -69,36 +69,36 @@ export default function OurServices() {
   };
 
   return (
-    <section id="servicios" className="py-24 lg:py-32 bg-[#f9f4ee] w-full overflow-hidden max-h-[100vh]">
-      <div className="w-full space-y-12">
+    <section id="servicios" className="py-10 sm:py-20 lg:py-28 bg-[#f9f4ee] w-full overflow-hidden">
+      <div className="w-full space-y-6 sm:space-y-12">
         {/* Cabecera con Título en Mayúsculas y Palabras Clave en Cursiva */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-50px" }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-3"
+          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-2 sm:space-y-3"
         >
           <div className='flex justify-center'>
             <Image
               src={serviciosTitle}
               alt="Nuestros Servicios"
-              className="w-[800px] object-contain invert-[0.9]"
+              className="w-full max-w-[75vw] sm:max-w-xl md:max-w-2xl lg:max-w-[800px] object-contain invert-[0.9]"
             />
           </div>
 
           {/* Separador de Oro Premium Metálico con Diamante */}
-          <div className="flex items-center justify-center gap-3 pt-1">
+          <div className="flex items-center justify-center gap-3 pt-0.5 sm:pt-1">
             <div
-              className="h-[1.5px] w-16 sm:w-28"
+              className="h-[1.5px] w-12 sm:w-28"
               style={{
                 background:
                   'linear-gradient(to right, transparent, #77530a, #ffd277, #77530a)',
               }}
             />
-            <BsDiamondFill className="w-2.5 h-2.5 text-[#845f15] drop-shadow-[0_0_4px_rgba(255,210,119,0.8)]" />
+            <BsDiamondFill className="w-2 sm:w-2.5 h-2 sm:h-2.5 text-[#845f15] drop-shadow-[0_0_4px_rgba(255,210,119,0.8)]" />
             <div
-              className="h-[1.5px] w-16 sm:w-28"
+              className="h-[1.5px] w-12 sm:w-28"
               style={{
                 background:
                   'linear-gradient(to left, transparent, #77530a, #ffd277, #77530a)',
@@ -106,13 +106,13 @@ export default function OurServices() {
             />
           </div>
 
-          <p className="text-base sm:text-lg text-[#523B2D] font-serif tracking-wide max-w-xl mx-auto pt-1">
+          <p className="text-xs sm:text-lg text-[#523B2D] font-serif tracking-wide max-w-xl mx-auto pt-0.5 sm:pt-1 px-4">
             El arte de la{' '}
-            <span className="font-script text-2xl sm:text-3xl text-[#77530a] tracking-normal font-normal p-2">
+            <span className="font-script text-lg sm:text-3xl text-[#77530a] tracking-normal font-normal p-1 sm:p-2">
               precisión
             </span>{' '}
             y el cuidado{' '}
-            <span className="font-script text-2xl sm:text-3xl text-[#77530a] tracking-normal font-normal p-2">
+            <span className="font-script text-lg sm:text-3xl text-[#77530a] tracking-normal font-normal p-1 sm:p-2">
               consciente
             </span>
           </p>
@@ -126,18 +126,18 @@ export default function OurServices() {
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseLeave}
-            className="flex gap-8 sm:gap-10 overflow-x-auto scrollbar-none py-6 px-6 sm:px-12 md:px-16 lg:px-24 cursor-grab active:cursor-grabbing select-none scroll-smooth touch-pan-x w-full"
+            className="flex gap-4 sm:gap-10 overflow-x-auto scrollbar-none py-3 sm:py-6 px-4 sm:px-12 md:px-16 lg:px-24 cursor-grab active:cursor-grabbing select-none scroll-smooth touch-pan-x w-full"
             style={{
               scrollbarWidth: 'none',
               msOverflowStyle: 'none',
             }}
           >
             {loading ? (
-              <div className="flex gap-8 sm:gap-10 w-full px-6">
+              <div className="flex gap-4 sm:gap-10 w-full px-4">
                 {[1, 2, 3, 4, 5].map((n) => (
                   <div
                     key={n}
-                    className="shrink-0 w-[320px] h-[480px] rounded-none p-[2.5px] animate-pulse"
+                    className="shrink-0 w-[230px] sm:w-[320px] h-[340px] sm:h-[480px] rounded-none p-[2.5px] animate-pulse"
                     style={{
                       background:
                         'linear-gradient(to right, #77530a, #ffd277, #77530a, #77530a, #ffd277, #77530a)',
@@ -160,16 +160,16 @@ export default function OurServices() {
                   transition={{ duration: 0.5, delay: index * 0.1, ease: "easeOut" }}
                   key={service.id}
                   data-service-card
-                  className="shrink-0 w-[320px] rounded-none p-[2.5px] shadow-sm hover:shadow-md transition-shadow duration-200"
+                  className="shrink-0 w-[230px] sm:w-[320px] rounded-none p-[2px] sm:p-[2.5px] shadow-xs sm:shadow-sm hover:shadow-md transition-shadow duration-200"
                   style={{
                     background:
                       'linear-gradient(to right, #77530a, #ffd277, #77530a, #77530a, #ffd277, #77530a)',
                   }}
                 >
                   {/* Paspartú interior de galería de arte */}
-                  <div className="bg-[#FAF7F2] p-4 sm:p-5 rounded-none flex flex-col items-center h-full">
+                  <div className="bg-[#FAF7F2] p-3 sm:p-5 rounded-none flex flex-col items-center h-full">
                     {/* Lienzo del cuadro alargado (imagen contenida sin escalado) */}
-                    <div className="w-full aspect-[3/4] p-1.5 bg-[#F3EDE4] border border-[#C59A45]/30 rounded-none shadow-inner overflow-hidden flex items-center justify-center">
+                    <div className="w-full aspect-[3/4] p-1 sm:p-1.5 bg-[#F3EDE4] border border-[#C59A45]/30 rounded-none shadow-inner overflow-hidden flex items-center justify-center">
                       <div className="w-full h-full overflow-hidden relative">
                         {service.imageUrl ? (
                           <img
@@ -181,21 +181,21 @@ export default function OurServices() {
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center bg-[#F3EDE4] text-[#77530a]">
-                            <FiImage className="w-12 h-12" aria-label="Servicio sin imagen" />
+                            <FiImage className="w-8 h-8 sm:w-12 sm:h-12" aria-label="Servicio sin imagen" />
                           </div>
                         )}
                       </div>
                     </div>
 
                     {/* Placa inferior del cuadro: Icono + Título */}
-                    <div className="pt-4 pb-1 w-full flex flex-col items-center text-center space-y-1.5">
-                      <div className="flex items-center justify-center gap-2">
+                    <div className="pt-2.5 sm:pt-4 pb-0.5 sm:pb-1 w-full flex flex-col items-center text-center space-y-1 sm:space-y-1.5">
+                      <div className="flex items-center justify-center gap-1.5 sm:gap-2">
                         <ServiceIcon type={service.iconType} />
-                        <span className="font-script text-base text-[#77530a] tracking-wide">
+                        <span className="font-script text-sm sm:text-base text-[#77530a] tracking-wide">
                           Kad Bay
                         </span>
                       </div>
-                      <h3 className="font-serif text-sm sm:text-base text-[#24150E] tracking-wider uppercase font-medium leading-snug">
+                      <h3 className="font-serif text-xs sm:text-base text-[#24150E] tracking-wider uppercase font-medium leading-snug">
                         {service.title}
                       </h3>
                     </div>

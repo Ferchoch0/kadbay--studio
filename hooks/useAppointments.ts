@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   appointmentService,
   type AvailabilitySlot,
@@ -22,8 +22,14 @@ export function useAppointments(serviceId?: string | number | null) {
   const [slotsLoading, setSlotsLoading] = useState(false);
   const [slotsError, setSlotsError] = useState<string | null>(null);
   const [bookingLoading, setBookingLoading] = useState(false);
+  const [checkedDaysStatus, setCheckedDaysStatus] = useState<Record<string, 'available' | 'full'>>({});
+  const cacheRef = useRef<Record<string, AppointmentSlot[]>>({});
 
   useEffect(() => {
+    // Al cambiar de servicio, limpiar caché y estado de días previos
+    cacheRef.current = {};
+    setCheckedDaysStatus({});
+    setSlots([]);
     let mounted = true;
     setEmployeesLoading(true);
     appointmentService.getEmployees(serviceId ?? undefined)
@@ -44,14 +50,33 @@ export function useAppointments(serviceId?: string | number | null) {
   }, []);
 
   const loadAvailability = useCallback(async (serviceId: string, date: string, employeeId: number) => {
+    const cacheKey = `${serviceId}_${date}_${employeeId}`;
+    if (cacheRef.current[cacheKey]) {
+      const cached = cacheRef.current[cacheKey];
+      setSlots(cached);
+      setCheckedDaysStatus((prev) => ({
+        ...prev,
+        [date]: cached.length > 0 ? 'available' : 'full',
+      }));
+      setSlotsLoading(false);
+      return cached;
+    }
+
     setSlotsLoading(true);
     setSlotsError(null);
     try {
       const data = await checkAvailability(serviceId, date, employeeId);
+      cacheRef.current[cacheKey] = data;
       setSlots(data);
+      setCheckedDaysStatus((prev) => ({
+        ...prev,
+        [date]: data.length > 0 ? 'available' : 'full',
+      }));
+      return data;
     } catch (error: unknown) {
       setSlots([]);
       setSlotsError(error instanceof Error ? error.message : 'Error al cargar horarios');
+      return [];
     } finally {
       setSlotsLoading(false);
     }
@@ -71,6 +96,7 @@ export function useAppointments(serviceId?: string | number | null) {
     slots,
     slotsLoading,
     slotsError,
+    checkedDaysStatus,
     loadAvailability,
     checkAvailability,
     createAppointment,
