@@ -39,7 +39,7 @@ export default function Navbar() {
       if (!ticking) {
         window.requestAnimationFrame(() => {
           const scrollY = window.scrollY;
-          // Distancia en píxeles para completar la transición hacia el navbar (más ágil en mobile y tablet < 990px)
+          // Distancia en píxeles para completar la transición hacia el navbar (más ágil en mobile/tablet <990px)
           const isMobile = window.innerWidth < 990;
           const threshold = isMobile ? 180 : 300;
           const progress = Math.min(1, Math.max(0, scrollY / threshold));
@@ -430,7 +430,7 @@ export default function Navbar() {
           style={{
             filter: `invert(${Math.min(0.9, Math.max(0, effectiveProgress * 2.5))})`,
           }}
-          className="relative w-[85vw] max-w-[490px] sm:w-[600px] md:w-[720px] lg:w-[820px] flex items-center justify-center transition-[filter] duration-75"
+          className="relative w-[85vw] max-[989px]:max-w-[490px] min-[990px]:w-[490px] md:w-[720px] lg:w-[820px] flex items-center justify-center transition-[filter] duration-75"
         >
           {/* Borde superior solo en modo grande */}
           <div
@@ -442,7 +442,7 @@ export default function Navbar() {
             src={heroLogo}
             alt="Hero Logo"
             priority
-            className="w-full h-auto object-contain scale-x-110 sm:scale-x-120"
+            className="w-full h-auto object-contain scale-x-120"
           />
 
           {/* Borde inferior solo en modo grande */}
